@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.pemotos.lojamanager.ui.estoque.EstoqueScreen
 
 @Composable
 fun LojaNavHost(
@@ -21,7 +22,7 @@ fun LojaNavHost(
         modifier = modifier,
     ) {
         composable(TopLevelDestination.Painel.route) { PlaceholderScreen("Painel") }
-        composable(TopLevelDestination.Estoque.route) { PlaceholderScreen("Estoque") }
+        composable(TopLevelDestination.Estoque.route) { EstoqueScreen() }
         composable(TopLevelDestination.Pedidos.route) { PlaceholderScreen("Pedidos") }
         composable(TopLevelDestination.Vendas.route) { PlaceholderScreen("Vendas") }
         composable(TopLevelDestination.Fornecedores.route) { PlaceholderScreen("Fornecedores") }
