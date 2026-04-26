@@ -67,4 +67,42 @@ interface ProdutoDao {
 
     @Query("DELETE FROM produtos")
     suspend fun limpar()
+
+    /** Histórico de entradas de um produto — itens de pedidos Recebidos. */
+    @Query("""
+        SELECT pd.data AS data, pi.qtd AS qtd, pi.precoUnitCusto AS precoUnit,
+               pd.numeroPedido AS numeroPedido, f.nome AS fornecedorNome
+        FROM pedido_itens pi
+        JOIN pedidos pd ON pd.id = pi.pedidoId
+        JOIN fornecedores f ON f.id = pd.fornecedorId
+        WHERE pi.produtoId = :produtoId AND pd.status = 'Recebido'
+        ORDER BY pd.data DESC, pd.id DESC
+    """)
+    fun observarEntradas(produtoId: Long): kotlinx.coroutines.flow.Flow<List<EntradaProdutoLinha>>
+
+    /** Histórico de saídas — vendas do produto. */
+    @Query("""
+        SELECT data, qtd, precoUnit, formaPgto
+        FROM vendas
+        WHERE produtoId = :produtoId
+        ORDER BY data DESC, id DESC
+    """)
+    fun observarSaidas(produtoId: Long): kotlinx.coroutines.flow.Flow<List<SaidaProdutoLinha>>
 }
+
+/** Linha de entrada usada por [ProdutoDao.observarEntradas]. */
+data class EntradaProdutoLinha(
+    val data: kotlinx.datetime.LocalDate,
+    val qtd: Int,
+    val precoUnit: Double,
+    val numeroPedido: Int,
+    val fornecedorNome: String,
+)
+
+/** Linha de saída usada por [ProdutoDao.observarSaidas]. */
+data class SaidaProdutoLinha(
+    val data: kotlinx.datetime.LocalDate,
+    val qtd: Int,
+    val precoUnit: Double,
+    val formaPgto: String,
+)

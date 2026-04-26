@@ -64,4 +64,20 @@ class EstoqueRepositoryTest {
         assertThat(ok).isTrue()
         assertThat(repo.obterPorId(id)).isNull()
     }
+
+    @Test
+    fun `movimentacoes retorna entradas e saidas combinadas em ordem cronologica`() = runTest {
+        DatabaseSeeder(db).seed()
+        val macaquinhoS = repo.observarProdutos().first().first { it.nome == "Macaquinho" && it.tipo == "S" }
+        val movs = repo.observarMovimentacoes(macaquinhoS.id).first()
+        // Macaquinho S tem 1 entrada (pedido nº 1, 01/04/2025) e 1 saída (venda 02/04/2025).
+        assertThat(movs).hasSize(2)
+        // Mais recente primeiro → venda primeiro.
+        assertThat(movs.first().tipo)
+            .isEqualTo(com.pemotos.lojamanager.domain.model.TipoMovimentacao.Saida)
+        assertThat(movs.first().qtd).isEqualTo(2)
+        assertThat(movs.last().tipo)
+            .isEqualTo(com.pemotos.lojamanager.domain.model.TipoMovimentacao.Entrada)
+        assertThat(movs.last().qtd).isEqualTo(10)
+    }
 }

@@ -7,8 +7,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import com.pemotos.lojamanager.ui.estoque.DetalheProdutoScreen
+import com.pemotos.lojamanager.ui.estoque.EditarProdutoScreen
 import com.pemotos.lojamanager.ui.estoque.EstoqueScreen
 
 @Composable
@@ -22,7 +26,35 @@ fun LojaNavHost(
         modifier = modifier,
     ) {
         composable(TopLevelDestination.Painel.route) { PlaceholderScreen("Painel") }
-        composable(TopLevelDestination.Estoque.route) { EstoqueScreen() }
+
+        composable(TopLevelDestination.Estoque.route) {
+            EstoqueScreen(
+                onAbrirProduto = { id -> navController.navigate(Routes.produtoDetalhe(id)) },
+                onNovoProduto = { navController.navigate(Routes.PRODUTO_NOVO) },
+            )
+        }
+
+        composable(Routes.PRODUTO_NOVO) {
+            EditarProdutoScreen(onVoltar = { navController.popBackStack() })
+        }
+
+        composable(
+            route = Routes.PRODUTO_DETALHE,
+            arguments = listOf(navArgument(Routes.ARG_PRODUTO_ID) { type = NavType.LongType }),
+        ) {
+            DetalheProdutoScreen(
+                onVoltar = { navController.popBackStack() },
+                onEditar = { id -> navController.navigate(Routes.produtoEditar(id)) },
+            )
+        }
+
+        composable(
+            route = Routes.PRODUTO_EDITAR,
+            arguments = listOf(navArgument(Routes.ARG_PRODUTO_ID) { type = NavType.LongType }),
+        ) {
+            EditarProdutoScreen(onVoltar = { navController.popBackStack() })
+        }
+
         composable(TopLevelDestination.Pedidos.route) { PlaceholderScreen("Pedidos") }
         composable(TopLevelDestination.Vendas.route) { PlaceholderScreen("Vendas") }
         composable(TopLevelDestination.Fornecedores.route) { PlaceholderScreen("Fornecedores") }
