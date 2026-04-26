@@ -19,6 +19,9 @@ truth = "1.4.4"
 espresso = "3.6.1"
 testRunner = "1.6.2"
 testExtJunit = "1.2.1"
+testCore = "1.6.1"
+robolectric = "4.13"
+archCoreTesting = "2.2.0"
 
 [libraries]
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
@@ -59,7 +62,10 @@ mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 truth = { module = "com.google.truth:truth", version.ref = "truth" }
 androidx-test-runner = { module = "androidx.test:runner", version.ref = "testRunner" }
 androidx-test-ext-junit = { module = "androidx.test.ext:junit", version.ref = "testExtJunit" }
+androidx-test-core = { module = "androidx.test:core", version.ref = "testCore" }
 androidx-test-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso" }
+androidx-arch-core-testing = { module = "androidx.arch.core:core-testing", version.ref = "archCoreTesting" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
