@@ -95,7 +95,7 @@ class FornecedorViewModel @Inject constructor(
         }
     }
 
-    fun atualizarPreco(produtoId: Long, fornecedorId: Long, preco: Double?) = viewModelScope.launch {
-        fornecedorRepository.upsertPreco(fornecedorId, produtoId, preco)
+    fun atualizarPreco(produtoIds: List<Long>, fornecedorId: Long, preco: Double?) = viewModelScope.launch {
+        fornecedorRepository.upsertPrecos(fornecedorId, produtoIds, preco)
     }
 }

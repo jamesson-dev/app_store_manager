@@ -29,7 +29,7 @@ class FornecedorRepositoryTest {
             ApplicationProvider.getApplicationContext(),
             LojaDatabase::class.java,
         ).allowMainThreadQueries().build()
-        repo = FornecedorRepository(db.fornecedorDao())
+        repo = FornecedorRepository(db.fornecedorDao(), db)
         estoque = EstoqueRepository(db.produtoDao())
         kotlinx.coroutines.runBlocking { DatabaseSeeder(db).seed() }
     }
@@ -62,6 +62,21 @@ class FornecedorRepositoryTest {
         repo.upsertPreco(ph.id, mac.id, null)
         val matriz = repo.observarMatrizPrecos().first().associate { (it.produtoId to it.fornecedorId) to it.preco }
         assertThat(matriz[mac.id to ph.id]).isNull()
+    }
+
+    @Test
+    fun `upsertPrecos atualiza todas as variantes do mesmo modelo`() = runTest {
+        val produtos = estoque.observarProdutos().first()
+        val fornecedores = repo.observarTodos().first()
+        val macaquinhos = produtos.filter { it.nome == "Macaquinho" }
+        val ph = fornecedores.first { it.nome == "P&H Modas" }
+
+        repo.upsertPrecos(ph.id, macaquinhos.map { it.id }, 31.90)
+
+        val matriz = repo.observarMatrizPrecos().first().associate { (it.produtoId to it.fornecedorId) to it.preco }
+        macaquinhos.forEach { produto ->
+            assertThat(matriz[produto.id to ph.id]).isWithin(0.001).of(31.90)
+        }
     }
 
     @Test

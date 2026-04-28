@@ -39,6 +39,24 @@ interface ProdutoDao {
     """)
     suspend fun contarVinculos(id: Long): Int
 
+    @Query("""
+        SELECT
+          COALESCE(
+            (SELECT SUM(pi.qtd) FROM pedido_itens pi
+             JOIN pedidos pd ON pd.id = pi.pedidoId
+             WHERE pi.produtoId = :produtoId AND pd.status = 'Recebido'),
+            0
+          ) -
+          COALESCE(
+            (SELECT SUM(v.qtd) FROM vendas v WHERE v.produtoId = :produtoId),
+            0
+          )
+        FROM produtos p
+        WHERE p.id = :produtoId
+        LIMIT 1
+    """)
+    suspend fun obterEstoqueAtual(produtoId: Long): Int?
+
     /**
      * Resumo por produto: qtd comprada (apenas pedidos com status 'Recebido'),
      * qtd vendida (todas as vendas) e demais campos para cálculo de estoque atual.

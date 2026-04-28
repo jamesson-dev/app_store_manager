@@ -3,6 +3,7 @@ package com.pemotos.lojamanager.ui.vendas
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pemotos.lojamanager.data.local.entity.VendaEntity
+import com.pemotos.lojamanager.data.repository.EstoqueInsuficienteException
 import com.pemotos.lojamanager.data.repository.EstoqueRepository
 import com.pemotos.lojamanager.data.repository.VendaRepository
 import com.pemotos.lojamanager.domain.model.FormaPagamento
@@ -39,6 +40,7 @@ data class NovaVendaUiState(
     val erroCliente: String? = null,
     val erroTelefone: String? = null,
     val erroSalvar: String? = null,
+    val salvando: Boolean = false,
     val totalCalculado: Double = 0.0,
 )
 
@@ -88,14 +90,10 @@ class NovaVendaViewModel @Inject constructor(
 
     fun salvar() {
         val s = _state.value
+        if (s.salvando) return
         val p = s.produtoSelecionado ?: return _state.update { it.copy(erroProduto = "Selecione um produto.") }
         val qtd = s.qtdTexto.trim().toIntOrNull()?.takeIf { it > 0 }
             ?: return _state.update { it.copy(erroQtd = "Quantidade inválida.") }
-        if (qtd > p.estoqueAtual) {
-            return _state.update {
-                it.copy(erroQtd = "Estoque insuficiente. Disponível: ${p.estoqueAtual}.")
-            }
-        }
         val preco = s.precoTexto.parseDecimalBr()?.takeIf { it > 0.0 }
             ?: return _state.update { it.copy(erroPreco = "Preço inválido.") }
         if (s.forma == FormaPagamento.Fiado) {
@@ -108,7 +106,8 @@ class NovaVendaViewModel @Inject constructor(
         }
         viewModelScope.launch {
             try {
-                val id = vendaRepository.inserir(
+                _state.update { it.copy(salvando = true, erroSalvar = null) }
+                val id = vendaRepository.inserirValidandoEstoque(
                     VendaEntity(
                         data = s.data,
                         produtoId = p.id,
@@ -119,9 +118,17 @@ class NovaVendaViewModel @Inject constructor(
                         telefone = s.telefone.takeIf { it.isNotBlank() },
                     )
                 )
+                _state.update { it.copy(salvando = false) }
                 _eventos.emit(NovaVendaEvento.Salva(id = id, total = qtd * preco))
+            } catch (e: EstoqueInsuficienteException) {
+                _state.update {
+                    it.copy(
+                        salvando = false,
+                        erroQtd = "Estoque insuficiente. Disponível: ${e.disponivel}.",
+                    )
+                }
             } catch (t: Throwable) {
-                _state.update { it.copy(erroSalvar = t.message ?: "Erro ao salvar venda.") }
+                _state.update { it.copy(salvando = false, erroSalvar = t.message ?: "Erro ao salvar venda.") }
             }
         }
     }

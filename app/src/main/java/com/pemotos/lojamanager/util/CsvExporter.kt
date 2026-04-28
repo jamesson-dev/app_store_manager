@@ -34,7 +34,8 @@ object CsvExporter {
             salvarViaMediaStore(context, nomeArquivo, csv)
         } else {
             @Suppress("DEPRECATION")
-            val dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            val dir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+                ?: File(context.filesDir, Environment.DIRECTORY_DOWNLOADS)
             if (!dir.exists()) dir.mkdirs()
             val arquivo = File(dir, nomeArquivo)
             FileOutputStream(arquivo).use { it.write(csv.toByteArray(Charsets.UTF_8)) }

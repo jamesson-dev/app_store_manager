@@ -1,5 +1,7 @@
 package com.pemotos.lojamanager.data.repository
 
+import androidx.room.withTransaction
+import com.pemotos.lojamanager.data.local.LojaDatabase
 import com.pemotos.lojamanager.data.local.dao.FornecedorDao
 import com.pemotos.lojamanager.data.local.entity.FornecedorEntity
 import com.pemotos.lojamanager.data.local.entity.PrecoFornecedorEntity
@@ -11,6 +13,7 @@ import kotlinx.coroutines.flow.Flow
 @Singleton
 class FornecedorRepository @Inject constructor(
     private val fornecedorDao: FornecedorDao,
+    private val database: LojaDatabase,
 ) {
     fun observarTodos(): Flow<List<FornecedorEntity>> = fornecedorDao.observarTodos()
 
@@ -25,6 +28,18 @@ class FornecedorRepository @Inject constructor(
     fun observarMatrizPrecos(): Flow<List<PrecoMatrizCelula>> = fornecedorDao.observarMatrizPrecos()
 
     suspend fun upsertPreco(fornecedorId: Long, produtoId: Long, preco: Double?) {
+        upsertPrecos(fornecedorId, listOf(produtoId), preco)
+    }
+
+    suspend fun upsertPrecos(fornecedorId: Long, produtoIds: List<Long>, preco: Double?) {
+        database.withTransaction {
+            produtoIds.distinct().forEach { produtoId ->
+                upsertPrecoSemTransacao(fornecedorId, produtoId, preco)
+            }
+        }
+    }
+
+    private suspend fun upsertPrecoSemTransacao(fornecedorId: Long, produtoId: Long, preco: Double?) {
         if (preco == null) {
             fornecedorDao.removerPreco(fornecedorId, produtoId)
         } else {

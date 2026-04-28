@@ -10,10 +10,13 @@ import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
+import kotlinx.datetime.toLocalDateTime
 
 /**
  * Repository do Painel — calcula os 6 KPIs da Seção 2.5 do CLAUDE.md
@@ -40,7 +43,7 @@ class PainelRepository @Inject constructor(
 
     fun observarVendasPorDia(dias: Int = 7): Flow<List<Pair<LocalDate, Double>>> =
         vendaDao.observarTodas().map { vendas ->
-            agruparUltimosDias(vendas, dias)
+            agruparUltimosDias(vendas, dias, hoje())
         }
 
     companion object {
@@ -74,8 +77,8 @@ class PainelRepository @Inject constructor(
         fun agruparUltimosDias(
             vendas: List<VendaDetalhe>,
             dias: Int,
+            hoje: LocalDate,
         ): List<Pair<LocalDate, Double>> {
-            val hoje = vendas.maxOfOrNull { it.data } ?: return emptyList()
             val inicio = hoje.minus(dias - 1, DateTimeUnit.DAY)
             val porDia = vendas
                 .filter { it.data in inicio..hoje }
@@ -88,3 +91,6 @@ class PainelRepository @Inject constructor(
         }
     }
 }
+
+private fun hoje(): LocalDate =
+    Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date

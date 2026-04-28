@@ -31,7 +31,7 @@ class VendaRepositoryTest {
             ApplicationProvider.getApplicationContext(),
             LojaDatabase::class.java,
         ).allowMainThreadQueries().build()
-        vendas = VendaRepository(db.vendaDao())
+        vendas = VendaRepository(db.vendaDao(), db.produtoDao(), db)
         estoque = EstoqueRepository(db.produtoDao())
         kotlinx.coroutines.runBlocking { DatabaseSeeder(db).seed() }
     }
@@ -53,6 +53,29 @@ class VendaRepositoryTest {
         )
         val depois = estoque.observarResumo().first().first { it.id == produto.id }.estoqueAtual
         assertThat(depois).isEqualTo(antes - 1)
+    }
+
+    @Test
+    fun `inserirValidandoEstoque bloqueia venda acima do estoque disponivel`() = runTest {
+        val produto = estoque.observarProdutos().first().first { it.nome == "Conj. Short" && it.tipo == "S" }
+        val antes = estoque.observarResumo().first().first { it.id == produto.id }.estoqueAtual
+
+        try {
+            vendas.inserirValidandoEstoque(
+                VendaEntity(
+                    data = LocalDate(2025, 5, 1),
+                    produtoId = produto.id,
+                    qtd = antes + 1,
+                    precoUnit = 39.20,
+                    formaPgto = FormaPagamento.Pix.label,
+                )
+            )
+        } catch (e: EstoqueInsuficienteException) {
+            assertThat(e.disponivel).isEqualTo(antes)
+        }
+
+        val depois = estoque.observarResumo().first().first { it.id == produto.id }.estoqueAtual
+        assertThat(depois).isEqualTo(antes)
     }
 
     @Test

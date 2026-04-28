@@ -170,7 +170,7 @@ fun NovaVendaScreen(
             Button(
                 onClick = viewModel::salvar,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = state.produtosDisponiveis.isNotEmpty(),
+                enabled = state.produtosDisponiveis.isNotEmpty() && !state.salvando,
             ) { Text("Salvar venda") }
         }
     }

@@ -103,7 +103,11 @@ class PainelRepositoryTest {
 
     @Test
     fun `vendas por dia agrupa em 7 dias incluindo dias zerados`() = runTest {
-        val serie = painel.observarVendasPorDia(dias = 7).first()
+        val serie = PainelRepository.agruparUltimosDias(
+            vendas = db.vendaDao().observarTodas().first(),
+            dias = 7,
+            hoje = LocalDate(2025, 4, 4),
+        )
         assertThat(serie).hasSize(7)
         // Última data do seed é 04/04/2025 → série termina em 04/04
         assertThat(serie.last().first).isEqualTo(LocalDate(2025, 4, 4))

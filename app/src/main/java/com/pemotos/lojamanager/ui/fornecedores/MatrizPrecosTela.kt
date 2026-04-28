@@ -58,7 +58,7 @@ fun MatrizPrecosTela(
     produtos: List<ProdutoEntity>,
     fornecedores: List<FornecedorEntity>,
     precos: Map<Pair<Long, Long>, Double>, // (produtoId, fornecedorId) -> preço
-    onAtualizarPreco: (produtoId: Long, fornecedorId: Long, preco: Double?) -> Unit,
+    onAtualizarPreco: (produtoIds: List<Long>, fornecedorId: Long, preco: Double?) -> Unit,
 ) {
     if (produtos.isEmpty() || fornecedores.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -71,10 +71,11 @@ fun MatrizPrecosTela(
         return
     }
 
-    // Agrupar produtos por nome — usar o id do primeiro como representante.
+    // Agrupar produtos por nome — a edição se aplica a todas as variantes.
     val produtosPorNome = remember(produtos) {
-        produtos.groupBy { it.nome }
-            .mapValues { it.value.first() }
+        produtos.groupBy { it.nome }.mapValues { (_, variantes) ->
+            variantes.sortedBy { it.tipo }
+        }
             .toSortedMap()
     }
     val fornsOrdenados = remember(fornecedores) { fornecedores.sortedBy { it.nome } }
@@ -112,7 +113,9 @@ fun MatrizPrecosTela(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(bottom = 96.dp),
         ) {
-            items(items = produtosPorNome.entries.toList(), key = { it.key }) { (nomeProduto, representante) ->
+            items(items = produtosPorNome.entries.toList(), key = { it.key }) { (nomeProduto, variantes) ->
+                val representante = variantes.first()
+                val produtoIds = variantes.map { it.id }
                 val precosLinha = fornsOrdenados.map { f -> precos[representante.id to f.id] }
                 val menor = precosLinha.filterNotNull().filter { it > 0.0 }.minOrNull()
                 Row(modifier = Modifier.horizontalScroll(scrollHorizontal)) {
@@ -124,7 +127,7 @@ fun MatrizPrecosTela(
                         CelulaPreco(
                             preco = preco,
                             ehMenor = preco != null && preco == menor,
-                            onClick = { celulaEditando = Triple(representante.id, f.id, preco) },
+                            onClick = { celulaEditando = Triple(produtoIds, f.id, preco) },
                         )
                     }
                 }
@@ -133,16 +136,16 @@ fun MatrizPrecosTela(
         }
     }
 
-    celulaEditando?.let { (produtoId, fornecedorId, atual) ->
+    celulaEditando?.let { (produtoIds, fornecedorId, atual) ->
         EditarPrecoDialog(
             valorInicial = atual,
             onCancelar = { celulaEditando = null },
             onConfirmar = { novoPreco ->
-                onAtualizarPreco(produtoId, fornecedorId, novoPreco)
+                onAtualizarPreco(produtoIds, fornecedorId, novoPreco)
                 celulaEditando = null
             },
             onLimpar = {
-                onAtualizarPreco(produtoId, fornecedorId, null)
+                onAtualizarPreco(produtoIds, fornecedorId, null)
                 celulaEditando = null
             },
         )
