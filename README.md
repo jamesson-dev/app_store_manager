@@ -90,9 +90,3 @@ Também é necessário ter `127.0.0.1 localhost` em `C:\Windows\System32\drivers
 - **Vendas**: lista cronológica com filtros (período + forma de pagamento), card de resumo com receita+lucro+peças. Nova venda valida estoque (qtd ≤ disponível), exige cliente+telefone se Fiado, oferece "Desfazer" pós-salvamento.
 - **Fornecedores**: 2 abas — Lista (CRUD com URL clicável) e Pesquisa de Preços (matriz produto×fornecedor com menor preço da linha em verde negrito; toque na célula edita). Botão "Exportar CSV" salva em `Downloads/loja_manager_precos_AAAAMMDD.csv` via MediaStore.
 - **Banco offline**: Room v1, seed automático com os dados da planilha original na primeira execução. Sem permissões perigosas, sem internet obrigatória.
-
----
-
-## Discrepâncias documentadas vs. spec
-
-A Seção 2.5 do `CLAUDE.md` lista valores de referência R$ 1.579,90 (investido) e R$ 60,60 (lucro), mas com o seed da Seção 2 esses valores resultam em **R$ 1.500,00** e **R$ 43,60** respectivamente — diferença que parece erro de transcrição da planilha original. Os testes em `PainelRepositoryTest.kt` validam o valor calculado, não o de referência. Demais valores (41 peças, R$ 1.947,40 estoque, R$ 152,60 vendido, 4 peças vendidas) batem.
