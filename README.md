@@ -2,10 +2,6 @@
 
 App Android (Kotlin/Compose, Material 3, offline-first) para gerenciar a operação de uma pequena loja de roupas: **Estoque**, **Pedidos** (compras a fornecedores), **Vendas**, **Fornecedores** (com matriz de pesquisa de preços) e **Painel** com KPIs em tempo real.
 
-Pacote: `com.pemotos.lojamanager` • Min SDK 24 (Android 7.0) • Compile/Target SDK 35 • Gradle 8.11.1 • Kotlin 2.0.21 • AGP 8.7.3.
-
-> Especificação completa em [`CLAUDE.md`](../../../CLAUDE.md) (raiz do projeto).
-
 ---
 
 ## Como compilar
