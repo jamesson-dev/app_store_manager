@@ -16,6 +16,7 @@ import com.pemotos.lojamanager.ui.estoque.EditarProdutoScreen
 import com.pemotos.lojamanager.ui.estoque.EstoqueScreen
 import com.pemotos.lojamanager.ui.pedidos.EditarPedidoScreen
 import com.pemotos.lojamanager.ui.pedidos.PedidosListScreen
+import com.pemotos.lojamanager.ui.fornecedores.FornecedoresScreen
 import com.pemotos.lojamanager.ui.vendas.NovaVendaScreen
 import com.pemotos.lojamanager.ui.vendas.VendasListScreen
 
@@ -84,7 +85,7 @@ fun LojaNavHost(
             NovaVendaScreen(onVoltar = { navController.popBackStack() })
         }
 
-        composable(TopLevelDestination.Fornecedores.route) { PlaceholderScreen("Fornecedores") }
+        composable(TopLevelDestination.Fornecedores.route) { FornecedoresScreen() }
     }
 }
 
