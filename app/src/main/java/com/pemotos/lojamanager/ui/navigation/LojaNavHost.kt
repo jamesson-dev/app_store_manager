@@ -17,6 +17,7 @@ import com.pemotos.lojamanager.ui.estoque.EstoqueScreen
 import com.pemotos.lojamanager.ui.pedidos.EditarPedidoScreen
 import com.pemotos.lojamanager.ui.pedidos.PedidosListScreen
 import com.pemotos.lojamanager.ui.fornecedores.FornecedoresScreen
+import com.pemotos.lojamanager.ui.painel.PainelScreen
 import com.pemotos.lojamanager.ui.vendas.NovaVendaScreen
 import com.pemotos.lojamanager.ui.vendas.VendasListScreen
 
@@ -30,7 +31,7 @@ fun LojaNavHost(
         startDestination = TopLevelDestination.START_ROUTE,
         modifier = modifier,
     ) {
-        composable(TopLevelDestination.Painel.route) { PlaceholderScreen("Painel") }
+        composable(TopLevelDestination.Painel.route) { PainelScreen() }
 
         composable(TopLevelDestination.Estoque.route) {
             EstoqueScreen(
