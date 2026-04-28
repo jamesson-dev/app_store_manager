@@ -14,6 +14,8 @@ import androidx.navigation.navArgument
 import com.pemotos.lojamanager.ui.estoque.DetalheProdutoScreen
 import com.pemotos.lojamanager.ui.estoque.EditarProdutoScreen
 import com.pemotos.lojamanager.ui.estoque.EstoqueScreen
+import com.pemotos.lojamanager.ui.pedidos.EditarPedidoScreen
+import com.pemotos.lojamanager.ui.pedidos.PedidosListScreen
 
 @Composable
 fun LojaNavHost(
@@ -55,7 +57,24 @@ fun LojaNavHost(
             EditarProdutoScreen(onVoltar = { navController.popBackStack() })
         }
 
-        composable(TopLevelDestination.Pedidos.route) { PlaceholderScreen("Pedidos") }
+        composable(TopLevelDestination.Pedidos.route) {
+            PedidosListScreen(
+                onNovoPedido = { navController.navigate(Routes.PEDIDO_NOVO) },
+                onAbrirPedido = { id -> navController.navigate(Routes.pedidoEditar(id)) },
+            )
+        }
+
+        composable(Routes.PEDIDO_NOVO) {
+            EditarPedidoScreen(onVoltar = { navController.popBackStack() })
+        }
+
+        composable(
+            route = Routes.PEDIDO_EDITAR,
+            arguments = listOf(navArgument(Routes.ARG_PEDIDO_ID) { type = NavType.LongType }),
+        ) {
+            EditarPedidoScreen(onVoltar = { navController.popBackStack() })
+        }
+
         composable(TopLevelDestination.Vendas.route) { PlaceholderScreen("Vendas") }
         composable(TopLevelDestination.Fornecedores.route) { PlaceholderScreen("Fornecedores") }
     }
